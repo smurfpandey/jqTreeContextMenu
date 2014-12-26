@@ -6,11 +6,12 @@
 	$.fn.jqTreeContextMenu = function (menuElement, callbacks) {
 		//
 		// TODO:
-		// * Make menu fade in/out
+		// * Different menu for different node type
 		//
 
 		var self = this;
 		var $el = this;
+		var menuFadeDuration = 250;
 
 		//Check if useContextMenu option is set
 		var jqTree = $el.data('simple_widget_tree');
@@ -80,14 +81,14 @@
 			}
 
 			// Must call show before we set the offset (offset can not be set on display: none elements).
-			$menuEl.show();
+			$menuEl.fadeIn(menuFadeDuration);
 
 			$menuEl.offset({ left: x, top: y });
 
 			var dismissContextMenu = function () {
 				$(document).unbind('click.jqtreecontextmenu');
 				$el.unbind('tree.click.jqtreecontextmenu');
-				$menuEl.hide();
+				$menuEl.fadeOut(menuFadeDuration);
 			}
 			// Make it possible to dismiss context menu by clicking somewhere in the document.
 			$(document).bind('click.jqtreecontextmenu', function () {

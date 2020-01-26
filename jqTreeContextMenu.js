@@ -52,13 +52,18 @@
 		// 	return false;
 		// });
 
+		var hideOldMenu = function($oldMenu) {
+			if($oldMenu instanceof jQuery){
+				$oldMenu.fadeOut(menuFadeDuration);
+			}
+		}
+
 		// Handle the contextmenu event sent from jqTree when user clicks right mouse button.
 		$el.bind('tree.contextmenu', function (event) {
 			var x = event.click_event.pageX;
 			var y = event.click_event.pageY;
 			var yPadding = 5;
 			var xPadding = 5;
-			var nodeId = event.node.id;
 
 			//If type of menu is SINGLE, show the menuEl,
 			//Else we need to get the menuEl of this particular node
@@ -66,25 +71,47 @@
 				case 'MULTI':{
 
 						//Hide the previous which is being displayed
+						var $oldMenu = $menuEl;
 						if($menuEl instanceof jQuery){
-							$menuEl.fadeOut(menuFadeDuration);
-
 							//deselect everyone
 							$el.tree('selectNode', null);
 						}
 
+						//Check if menu differentiation is based on id, type or name
+						var firstObj = menuElement[0];
+						var diffKey = '';
+						if(firstObj.hasOwnProperty('id')) {
+							diffKey = 'id';
+						}
+						else if (firstObj.hasOwnProperty('type')) {
+							diffKey = 'type';
+						}
+						else if (firstObj.hasOwnProperty('name')) {
+							diffKey = 'name';
+						}
+
+						var nodeValue = event.node[diffKey];
+						if(typeof(nodeValue) === 'undefined'){
+							hideOldMenu($oldMenu);
+							return;
+						}
 
 						//Get id of the current node
 						//jQuery method
-						var result = $.grep(menuElement, function(e){ return e.id == nodeId; });
+						var result = $.grep(menuElement, function(e){ return e[diffKey] == nodeValue; });
 
 						if(result.length === 0){
 							//No menu defined for this node
-
+							//We better hide the old one too
+							hideOldMenu($oldMenu);
 							return;
 						}
 						else {
 							$menuEl = result[0].menu_element;
+						}
+
+						if(!$menuEl.is($oldMenu)){
+							hideOldMenu($oldMenu);
 						}
 
 					break;
